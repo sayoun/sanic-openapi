@@ -84,10 +84,11 @@ def build_spec(app, loop):
             route_spec = route_specs.get(_handler) or RouteSpec()
             if 'view_class' in dir(_handler):
                 view_route = route_specs.get(_methods.get(_method)())
-                for k in view_route.__dict__.keys():
-                    if k in ['tags', 'consumes']:
-                        continue
-                    route_spec.__dict__[k] = view_route.__dict__[k]
+                if view_route:
+                    for k in view_route.__dict__.keys():
+                        if k in ['tags']:
+                            continue
+                        route_spec.__dict__[k] = view_route.__dict__[k]
 
             if _method == 'OPTIONS' or route_spec.exclude:
                 continue
@@ -117,6 +118,7 @@ def build_spec(app, loop):
                             'in': consumer.location,
                             'name': name
                         }
+                        route_parameters.append(route_param)
                 else:
                     route_param = {
                         **spec,
@@ -124,12 +126,12 @@ def build_spec(app, loop):
                         'in': consumer.location,
                         'name': consumer.field.name if hasattr(consumer.field, 'name') else 'body'
                     }
+                    route_parameters.append(route_param)
 
                 if '$ref' in route_param:
                     route_param["schema"] = {'$ref': route_param['$ref']}
                     del route_param['$ref']
-
-                route_parameters.append(route_param)
+                    route_parameters.append(route_param)
 
             endpoint = remove_nulls({
                 'operationId': route_spec.operation or route.name,
