@@ -73,7 +73,21 @@ def build_spec(app, loop):
 
         methods = {}
         for _method, _handler in method_handlers:
+
+            _methods = {
+                'GET': lambda: _handler.view_class.get,
+                'POST': lambda: _handler.view_class.post,
+                'PUT': lambda: _handler.view_class.put,
+                'PATCH': lambda: _handler.view_class.patch,
+                'DELETE': lambda: _handler.view_class.delete
+            }
             route_spec = route_specs.get(_handler) or RouteSpec()
+            if 'view_class' in dir(_handler):
+                view_route = route_specs.get(_methods.get(_method)())
+                for k in view_route.__dict__.keys():
+                    if k in ['tags', 'consumes']:
+                        continue
+                    route_spec.__dict__[k] = view_route.__dict__[k]
 
             if _method == 'OPTIONS' or route_spec.exclude:
                 continue
