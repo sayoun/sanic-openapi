@@ -62,7 +62,6 @@ def build_spec(app, loop):
         # --------------------------------------------------------------- #
         # Methods
         # --------------------------------------------------------------- #
-
         # Build list of methods and their handler functions
         handler_type = type(route.handler)
         if handler_type is CompositionView:
@@ -81,6 +80,7 @@ def build_spec(app, loop):
                 'PATCH': lambda: _handler.view_class.patch,
                 'DELETE': lambda: _handler.view_class.delete
             }
+
             route_spec = route_specs.get(_handler) or RouteSpec()
             if 'view_class' in dir(_handler):
                 view_route = route_specs.get(_methods.get(_method)())
@@ -114,10 +114,11 @@ def build_spec(app, loop):
                     for name, prop_spec in spec['properties'].items():
                         route_param = {
                             **prop_spec,
-                            'required': consumer.required,
                             'in': consumer.location,
                             'name': name
                         }
+                        if 'required' not in route_param:
+                            route_param['required'] = consumer.required
                         route_parameters.append(route_param)
                 else:
                     route_param = {
