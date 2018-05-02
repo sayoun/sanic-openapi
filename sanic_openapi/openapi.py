@@ -45,6 +45,13 @@ def build_spec(app, loop):
     # --------------------------------------------------------------- #
 
     for blueprint in app.blueprints.values():
+        if hasattr(blueprint, 'resources'):
+            for route, _ in blueprint.resources:
+                route_spec = route_specs[route.handler]
+                route_spec.blueprint = blueprint
+                if not route_spec.tags:
+                    route_spec.tags.append(blueprint.name)
+
         if hasattr(blueprint, 'routes'):
             for route in blueprint.routes:
                 route_spec = route_specs[route.handler]
