@@ -47,7 +47,7 @@ def build_spec(app, loop):
     for blueprint in app.blueprints.values():
         if hasattr(blueprint, 'resources'):
             for route, _ in blueprint.resources:
-                route_spec = route_specs[route.handler]
+                route_spec = route_specs[route.handler.__qualname__]
                 route_spec.blueprint = blueprint
                 if not route_spec.tags:
                     route_spec.tags.append(blueprint.name)
@@ -79,7 +79,6 @@ def build_spec(app, loop):
 
         methods = {}
         for _method, _handler in method_handlers:
-
             _methods = {
                 'GET': lambda: _handler.view_class.get,
                 'POST': lambda: _handler.view_class.post,
@@ -88,7 +87,11 @@ def build_spec(app, loop):
                 'DELETE': lambda: _handler.view_class.delete
             }
 
-            route_spec = route_specs.get(_handler) or RouteSpec()
+            route_spec = route_specs.get(_handler)
+            if not route_spec:
+                route_spec = route_specs.get(_handler.__qualname__)
+            if not route_spec:
+                route_spec = RouteSpec()
             if 'view_class' in dir(_handler):
                 view_route = route_specs.get(_methods.get(_method)())
                 if view_route:
