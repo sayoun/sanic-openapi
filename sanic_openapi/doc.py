@@ -3,7 +3,8 @@ from datetime import date, datetime
 
 
 class Field:
-    def __init__(self, description=None, required=None, name=None, choices=None):
+    def __init__(self, description=None, required=None, name=None,
+                 choices=None):
         self.name = name
         self.description = description
         self.required = required
@@ -86,7 +87,8 @@ class Dictionary(Field):
     def serialize(self):
         return {
             "type": "object",
-            "properties": {key: serialize_schema(schema) for key, schema in self.fields.items()},
+            "properties": {key: serialize_schema(schema)
+                           for key, schema in self.fields.items()},
             **super().serialize()
         }
 
@@ -130,7 +132,7 @@ class Object(Field):
                 key: serialize_schema(schema)
                 for key, schema in self.cls.__dict__.items()
                 if not key.startswith("_")
-                },
+            },
             **super().serialize()
         }
 
