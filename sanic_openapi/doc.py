@@ -144,6 +144,22 @@ class Object(Field):
         }
 
 
+class JsonBody(Field):
+    def __init__(self, fields=None, **kwargs):
+        self.fields = fields or {}
+        super().__init__(**kwargs, name="body")
+
+    def serialize(self):
+        return {
+            "schema": {
+                "type": "object",
+                "properties": {key: serialize_schema(schema)
+                               for key, schema in self.fields.items()},
+            },
+            **super().serialize()
+        }
+
+
 def serialize_schema(schema):
     schema_type = type(schema)
 
