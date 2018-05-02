@@ -23,7 +23,7 @@ app.blueprint(openapi_blueprint)
 app.blueprint(swagger_blueprint)
 ```
 
-You'll now have a Swagger UI at the URL `/swagger`.  
+You'll now have a Swagger UI at the URL `/swagger`.
 Your routes will be automatically categorized by their blueprints.
 
 ## Example
@@ -45,7 +45,7 @@ async def get_user(request, user_id):
 
 @app.post("/user")
 @doc.summary("Creates a user")
-@doc.consumes({"user": { "name": str }}, location="body")
+@doc.consumes(doc.JsonBody({"user": { "name": str }}), location="body")
 async def create_user(request):
     ...
 ```
@@ -84,6 +84,28 @@ class Car:
 class Garage:
     spaces = doc.Integer("How many cars can fit in the garage")
     cars = doc.List(Car, description="All cars in the garage")
+```
+
+### Specify a JSON body without extensive modelling
+
+```python
+garage = doc.JsonBody({
+    "spaces": doc.Integer,
+    "cars": [
+        {
+            "make": doc.String,
+            "model": doc.String,
+            "year": doc.Integer
+        }
+    ]
+})
+
+@app.post("/store/garage")
+@doc.summary("Stores a garage object")
+@doc.consumes(garage, content_type="application/json", location="body")
+async def store_garage(request):
+    store_garage(request.json)
+    return json(request.json)
 ```
 
 ### Configure all the things
